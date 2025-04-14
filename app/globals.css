@@ -76,6 +76,7 @@ body {
   margin-bottom: min(2vw, 8rem);
   letter-spacing: -0.02em;
   width: 100%;
+  height: 25rem;
   text-align: center;
 }
 
@@ -372,6 +373,7 @@ input[type="color"] {
 
 /* Fixed-width display to maintain consistent width between modes */
 .fixed-width-display {
+  padding-top: 3.2rem;
   width: 100%;
   text-align: center;
   display: inline-block;
@@ -379,6 +381,7 @@ input[type="color"] {
 
 /* Special container for scroll mode to match non-scroll size */
 .scroll-container {
+  padding-top: 2rem;
   display: inline-block;
   text-align: center;
 }
@@ -424,4 +427,106 @@ input[type="color"] {
 @keyframes slide-in {
   from { transform: translateY(0); }
   to { transform: translateY(-100%); }
+}
+
+/* Scroller display mode styles */
+.scroller-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* height: 100%; */
+  /* max-height: fit-content; */
+  width: 100%;
+  user-select: none;
+}
+
+.scroller-digit {
+  position: relative;
+  width: 0.6em;
+  height: 1.2em;
+  overflow: hidden;
+  cursor: ns-resize;
+  background-color: rgba(128, 128, 128, 0.05);
+  border-radius: 8px;
+  margin: 0 2px;
+}
+
+.scroller-digit.dragging {
+  background-color: rgba(128, 128, 128, 0.15);
+}
+
+.scroller-colon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 2px;
+  font-size: 1em;
+}
+
+.scroller-values {
+  position: absolute;
+  width: 100%;
+  transform: translateY(-1.35em); /* Center the current value */
+  transition: transform 0.15s ease;
+}
+
+.scroller-value {
+  height: 0.8em;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: inherit;
+}
+
+.scroller-value.current {
+  /* font-weight: bold; */
+  color: currentColor;
+}
+
+/* Dim non-current digits */
+.scroller-value:not(.current) {
+  opacity: 0.1;
+}
+
+/* Add a subtle brightness effect for the active value */
+@keyframes pulse {
+  0% { opacity: 0.9; }
+  50% { opacity: 1; }
+  100% { opacity: 0.9; }
+}
+
+.scroller-digit.dragging .scroller-value.current {
+  animation: pulse 1s infinite;
+}
+
+/* Add scrollbar to help indicate it's scrollable */
+.scroller-digit:after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background-color: rgba(128, 128, 128, 0.2);
+  border-radius: 2px;
+}
+
+/* Create a gradient fade effect at top and bottom */
+.scroller-digit:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--background-rgb), 0.9) 0%,
+    rgba(var(--background-rgb), 0) 20%,
+    rgba(var(--background-rgb), 0) 80%,
+    rgba(var(--background-rgb), 0.9) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
 }

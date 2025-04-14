@@ -26,7 +26,8 @@ const weightOptions = [
 // Display mode options
 const displayModes = [
   { name: 'Instant', value: 'instant' },
-  { name: 'Scroll', value: 'scroll' }
+  { name: 'Scroll', value: 'scroll' },
+  { name: 'Scroller', value: 'scroller' }
 ];
 
 export default function Home() {
@@ -50,6 +51,12 @@ export default function Home() {
   const [timerInTransition, setTimerInTransition] = useState(false);
   const [previousTime, setPreviousTime] = useState('00:00:00');
   const [hasStartedTyping, setHasStartedTyping] = useState(false);
+  // Scroller mode state variables
+  const [scrollerValues, setScrollerValues] = useState([0, 0, -1, 0, 0, -1, 0, 0]); // HH:MM:SS with colons
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [activeDigit, setActiveDigit] = useState(-1);
+  const scrollerRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null, null, null, null, null]);
   const mainRef = useRef<HTMLDivElement>(null);
   const colorPickerRef = useRef<HTMLInputElement>(null);
   const pauseColorPickerRef = useRef<HTMLInputElement>(null);
@@ -364,6 +371,225 @@ export default function Home() {
     );
   };
 
+  // Handle mouse/touch events for scroller
+  const handleScrollerMouseDown = (e: React.MouseEvent<HTMLDivElement>, index: number) => {
+    if (isRunning || isPaused) return;
+    setIsDragging(true);
+    setActiveDigit(index);
+    setDragStartY(e.clientY);
+  };
+
+  const handleScrollerTouchStart = (e: React.TouchEvent<HTMLDivElement>, index: number) => {
+    if (isRunning || isPaused) return;
+    setIsDragging(true);
+    setActiveDigit(index);
+    setDragStartY(e.touches[0].clientY);
+  };
+
+  const handleScrollerMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || activeDigit === -1 || isRunning || isPaused) return;
+    handleScrollerMove(e.clientY);
+  };
+
+  const handleScrollerTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging || activeDigit === -1 || isRunning || isPaused) return;
+    handleScrollerMove(e.touches[0].clientY);
+  };
+
+  const handleScrollerMouseUp = () => {
+    setIsDragging(false);
+    setActiveDigit(-1);
+  };
+
+  const handleMouseWheel = (e: React.WheelEvent<HTMLDivElement>, index: number) => {
+    if (isRunning || isPaused) return;
+    
+    // Prevent default scrolling behavior
+    e.preventDefault();
+    
+    // Determine direction: positive deltaY means scroll down (increase value)
+    const direction = e.deltaY > 0 ? 1 : -1;
+    
+    // Update the scroller value
+    updateScrollerValue(index, direction);
+  };
+
+  const handleScrollerMove = (clientY: number) => {
+    // Calculate movement based on drag distance
+    const deltaY = dragStartY - clientY;
+    // Use a threshold to avoid too sensitive movement
+    const threshold = 8;
+    
+    if (Math.abs(deltaY) > threshold) {
+      // Determine direction: positive deltaY means drag up (decrease value)
+      const direction = deltaY > 0 ? 1 : -1;
+      
+      // Update value and reset drag start position
+      updateScrollerValue(activeDigit, direction);
+      setDragStartY(clientY);
+    }
+  };
+
+  const updateScrollerValue = (index: number, direction: number) => {
+    // Don't update if this is a colon position
+    if (index === 2 || index === 5) return;
+    
+    setScrollerValues(prev => {
+      const newValues = [...prev];
+      // Adjust the digit by the direction (up = -1, down = +1)
+      if (index === 0) {
+        // First digit of hours (0-9)
+        newValues[index] = (newValues[index] + direction + 10) % 10;
+      } else if (index === 1) {
+        // Second digit of hours (0-9)
+        newValues[index] = (newValues[index] + direction + 10) % 10;
+      } else if (index === 3) {
+        // First digit of minutes (0-5)
+        // newValues[index] = (newValues[index] + direction + 6) % 6;
+        // First digit of hours (0-9)
+        newValues[index] = (newValues[index] + direction + 10) % 10
+      } else if (index === 4) {
+        // Second digit of minutes (0-9)
+        newValues[index] = (newValues[index] + direction + 10) % 10;
+      } else if (index === 6) {
+        // First digit of seconds (0-5)
+        // newValues[index] = (newValues[index] + direction + 6) % 6;
+        // First digit of hours (0-9)
+        newValues[index] = (newValues[index] + direction + 10) % 10
+      } else if (index === 7) {
+        // Second digit of seconds (0-9)
+        newValues[index] = (newValues[index] + direction + 10) % 10;
+      }
+      
+      // Update inputBuffer to match scroller values
+      const hours = `${newValues[0]}${newValues[1]}`;
+      const minutes = `${newValues[3]}${newValues[4]}`;
+      const seconds = `${newValues[6]}${newValues[7]}`;
+      setInputBuffer(`${hours}${minutes}${seconds}`);
+      
+      return newValues;
+    });
+  };
+
+  // Use inputBuffer to update scrollerValues when switching to scroller mode
+  useEffect(() => {
+    if (displayMode === 'scroller' && !isRunning && !isPaused) {
+      const padded = inputBuffer.padStart(6, '0');
+      setScrollerValues([
+        parseInt(padded[0]),
+        parseInt(padded[1]),
+        -1, // colon
+        parseInt(padded[2]),
+        parseInt(padded[3]),
+        -1, // colon
+        parseInt(padded[4]),
+        parseInt(padded[5])
+      ]);
+    }
+  }, [displayMode, inputBuffer, isRunning, isPaused]);
+
+  // Update scrollerValues when timer is running
+  useEffect(() => {
+    if (displayMode === 'scroller' && (isRunning || isPaused)) {
+      const timeStr = time.replace(/:/g, '');
+      setScrollerValues([
+        parseInt(timeStr[0]),
+        parseInt(timeStr[1]),
+        -1, // colon
+        parseInt(timeStr[2]),
+        parseInt(timeStr[3]),
+        -1, // colon
+        parseInt(timeStr[4]),
+        parseInt(timeStr[5])
+      ]);
+    }
+  }, [displayMode, time, isRunning, isPaused]);
+
+  // Add global mouse/touch event handlers
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        setActiveDigit(-1);
+      }
+    };
+    
+    const handleGlobalTouchEnd = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        setActiveDigit(-1);
+      }
+    };
+    
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    window.addEventListener('touchend', handleGlobalTouchEnd);
+    
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('touchend', handleGlobalTouchEnd);
+    };
+  }, [isDragging]);
+
+  // Helper function to render a single scroller digit
+  const renderScrollerDigit = (index: number) => {
+    // Handle colon positions
+    if (index === 2 || index === 5) {
+      return (
+        <div key={`colon-${index}`} className="scroller-colon">:</div>
+      );
+    }
+    
+    const currentValue = scrollerValues[index];
+    const digit = currentValue === undefined ? 0 : currentValue;
+    
+    // Generate array of values to display in the scroller
+    // For visual effect, show 5 values: 2 above, current, 2 below
+    const values = [];
+    for (let i = -2; i <= 2; i++) {
+      let displayValue;
+      if (index === 0) {
+        // First digit of hours (0-9)
+        displayValue = (digit + i + 100) % 10;
+      } else if (index === 1) {
+        // Second digit of hours (0-9)
+        displayValue = (digit + i + 100) % 10;
+      } else if (index === 3 || index === 6) {
+        // First digit of minutes or seconds (0-5)
+        // displayValue = (digit + i + 60) % 6;
+        // First digit of minutes or seconds (0-9)
+        displayValue = (digit + i + 100) % 10;
+      } else {
+        // Second digit of minutes or seconds (0-9)
+        displayValue = (digit + i + 100) % 10;
+      }
+      values.push(displayValue);
+    }
+    
+    return (
+      <div
+        key={`digit-${index}`}
+        className={`scroller-digit ${isDragging && activeDigit === index ? 'dragging' : ''}`}
+        ref={(el) => { scrollerRefs.current[index] = el; }}
+        onMouseDown={(e) => handleScrollerMouseDown(e, index)}
+        onTouchStart={(e) => handleScrollerTouchStart(e, index)}
+        onMouseMove={handleScrollerMouseMove}
+        onTouchMove={handleScrollerTouchMove}
+        onWheel={(e) => handleMouseWheel(e, index)}
+      >
+        <div className="scroller-values">
+          {values.map((val, i) => (
+            <div 
+              key={i} 
+              className={`scroller-value ${i === 2 ? 'current' : ''}`}
+            >
+              {val}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <main 
       ref={mainRef}
@@ -382,6 +608,10 @@ export default function Home() {
               formatInputBuffer(inputBuffer).split('').map((_, i) => renderDigit(i, formatInputBuffer(inputBuffer), previousTime))
             }
           </div>
+        ) : displayMode === 'scroller' ? (
+          <div className="scroller-container">
+            {[0, 1, 2, 3, 4, 5, 6, 7].map(index => renderScrollerDigit(index))}
+          </div>
         ) : (
           <div className="fixed-width-display">
             {isRunning || isPaused ? time : formatInputBuffer(inputBuffer)}
@@ -394,7 +624,9 @@ export default function Home() {
         <div className="input-hint-container">
           {!isRunning && !isPaused && (
             <div className="input-hint">
-              Type numbers to set time, backspace to delete
+              {displayMode === 'scroller' 
+                ? "Drag digits up/down or use mouse wheel to set time" 
+                : "Type numbers to set time, backspace to delete"}
             </div>
           )}
         </div>
