@@ -9,11 +9,15 @@ import { useState, useEffect, useRef } from 'react';
 const fontOptions = [
   { name: 'Mono', style: 'font-mono' },
   { name: 'Sans', style: 'font-sans' },
-  { name: 'Serif', style: 'font-serif' }
+  { name: 'Serif', style: 'font-serif' },
+  { name: 'RMono', style: 'font-roboto-mono' },
+  { name: 'Source', style: 'font-source-code-pro' }, 
+  // { name: 'Monofett', style: 'font-monofett' }
 ];
 
 // Font weight options
 const weightOptions = [
+  { name: 'Light', value: 'font-light' },
   { name: 'Normal', value: 'font-normal' },
   { name: 'Medium', value: 'font-medium' },
   { name: 'Bold', value: 'font-bold' }
@@ -341,9 +345,14 @@ export default function Home() {
     const digit = currentTime[index];
     const prevDigit = previousTime[index];
     
-    // For colons or when not transitioning, just render the digit
-    if (digit === ':' || displayMode === 'instant' || !timerInTransition || digit === prevDigit) {
-      return <span key={index} className={digit === ':' ? 'digit-container colon' : 'digit-container'}>{digit}</span>;
+    // For colons, just render them directly (no animation)
+    if (digit === ':') {
+      return <span key={index} className="digit-container colon">:</span>;
+    }
+    
+    // For digits that aren't transitioning or in instant mode, just render them
+    if (displayMode === 'instant' || !timerInTransition || digit === prevDigit) {
+      return <span key={index} className="digit-container">{digit}</span>;
     }
     
     // For transitioning digits, animate them
@@ -367,14 +376,14 @@ export default function Home() {
       
       <div className={`countdown-timer ${selectedFont} ${selectedWeight}`}>
         {displayMode === 'scroll' ? (
-          <div className="timer-display">
+          <div className="scroll-container">
             {isRunning || isPaused ? 
               time.split('').map((_, i) => renderDigit(i, time, previousTime)) :
               formatInputBuffer(inputBuffer).split('').map((_, i) => renderDigit(i, formatInputBuffer(inputBuffer), previousTime))
             }
           </div>
         ) : (
-          <div>
+          <div className="fixed-width-display">
             {isRunning || isPaused ? time : formatInputBuffer(inputBuffer)}
           </div>
         )}
@@ -442,118 +451,156 @@ export default function Home() {
           dev
         </button>
         
-        {/* Fixed height dev section to prevent layout shifts */}
+        {/* Dev section with 2x2 grid layout */}
         <div className="dev-section-container">
           <div className={`dev-section ${showDev ? 'visible' : ''}`}>
-            <div className="control-group">
-              {/* Color options in a single row */}
-              <div className="colors-row">
-                <div className="color-picker-container">
-                  <span>End color:</span>
-                  <div 
-                    className="color-preview"
-                    style={{ backgroundColor: endColor }}
-                    onClick={handleEndColorClick}
-                  ></div>
+            <div className="dev-grid">
+              {/* Top-left cell: Colors and sounds in a 2x2 grid */}
+              <div className="dev-cell">
+                {/* <div className="cell-title"></div> */}
+                <div className="cell-title">Colors & Sounds</div>
+                <div className="colors-sounds-grid">
+                  {/* End color */}
+                  <div className="color-picker-container">
+                    <span>Finish</span>
+                    <div 
+                      className="color-preview"
+                      style={{ backgroundColor: endColor }}
+                      onClick={handleEndColorClick}
+                    ></div>
+                    
+                    {showEndColorPicker && (
+                      <input 
+                        ref={colorPickerRef}
+                        type="color" 
+                        value={endColor}
+                        onChange={(e) => setEndColor(e.target.value)}
+                      />
+                    )}
+                  </div>
                   
-                  {showEndColorPicker && (
-                    <input 
-                      ref={colorPickerRef}
-                      type="color" 
-                      value={endColor}
-                      onChange={(e) => setEndColor(e.target.value)}
-                    />
-                  )}
-                </div>
-                
-                <div className="color-picker-container">
-                  <span>Pause color:</span>
-                  <div 
-                    className="color-preview"
-                    style={{ backgroundColor: pauseColor }}
-                    onClick={handlePauseColorClick}
-                  ></div>
+                  {/* Pause color */}
+                  <div className="color-picker-container">
+                    <span>Pause</span>
+                    <div 
+                      className="color-preview"
+                      style={{ backgroundColor: pauseColor }}
+                      onClick={handlePauseColorClick}
+                    ></div>
+                    
+                    {showPauseColorPicker && (
+                      <input 
+                        ref={pauseColorPickerRef}
+                        type="color" 
+                        value={pauseColor}
+                        onChange={(e) => setPauseColor(e.target.value)}
+                      />
+                    )}
+                  </div>
                   
-                  {showPauseColorPicker && (
-                    <input 
-                      ref={pauseColorPickerRef}
-                      type="color" 
-                      value={pauseColor}
-                      onChange={(e) => setPauseColor(e.target.value)}
-                    />
-                  )}
+                  {/* End sound */}
+                  <div className="sound-option">
+                    <span>Finish</span>
+                    <button
+                      onClick={() => setPlayEndSound(prev => !prev)}
+                      className={`text-btn-dev ${playEndSound ? 'active' : ''}`}
+                    >
+                      {playEndSound ? 'on' : 'off'}
+                    </button>
+                  </div>
+                  
+                  {/* Pause sound */}
+                  <div className="sound-option">
+                    <span>Pause</span>
+                    <button
+                      onClick={() => setPlayPauseSound(prev => !prev)}
+                      className={`text-btn-dev ${playPauseSound ? 'active' : ''}`}
+                    >
+                      {playPauseSound ? 'on' : 'off'}
+                    </button>
+                  </div>
                 </div>
               </div>
               
-              {/* Font options as text buttons */}
-              <div className="options-toggle-container">
-                <span className="section-label">Font:</span>
-                {fontOptions.map(option => (
-                  <button
-                    key={option.style}
-                    onClick={() => setSelectedFont(option.style)}
-                    className={`text-btn-dev ${selectedFont === option.style ? 'active' : ''}`}
-                  >
-                    {option.name}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Weight options as text buttons */}
-              <div className="options-toggle-container">
-                <span className="section-label">Weight:</span>
-                {weightOptions.map(option => (
-                  <button
-                    key={option.value}
-                    onClick={() => setSelectedWeight(option.value)}
-                    className={`text-btn-dev ${selectedWeight === option.value ? 'active' : ''}`}
-                  >
-                    {option.name}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Display mode options as text buttons */}
-              <div className="options-toggle-container">
-                <span className="section-label">Display:</span>
-                {displayModes.map(mode => (
-                  <button
-                    key={mode.value}
-                    onClick={() => setDisplayMode(mode.value)}
-                    className={`text-btn-dev ${displayMode === mode.value ? 'active' : ''}`}
-                  >
-                    {mode.name}
-                  </button>
-                ))}
-              </div>
-              
-              {/* Sound options as text buttons */}
-              <div className="options-toggle-container">
-                <span className="section-label">Sounds:</span>
-                <button
-                  onClick={() => setPlayPauseSound(prev => !prev)}
-                  className={`text-btn-dev ${playPauseSound ? 'active' : ''}`}
-                >
-                  pause
-                </button>
-                <button
-                  onClick={() => setPlayEndSound(prev => !prev)}
-                  className={`text-btn-dev ${playEndSound ? 'active' : ''}`}
-                >
-                  end
-                </button>
-              </div>
-              
-              {/* Progress bar */}
-              <div className="progress-container">
-                <span>Progress:</span>
-                <div className="progress-bar">
-                  <div 
-                    className="progress-fill"
-                    style={{ width: `${calculateProgress()}%` }}
-                  ></div>
+              {/* Top-right cell: Font and weight options */}
+              <div className="dev-cell">
+                {/* <div className="cell-title"></div> */}
+                <div className="cell-title">Font and Weight</div>
+                <div className="font-weight-grid">
+                  {/* Font options */}
+                  <div className="option-row">
+                    {/* <span>Font</span> */}
+                    <div className="option-buttons">
+                      {fontOptions.map(option => (
+                        <button
+                          key={option.style}
+                          onClick={() => setSelectedFont(option.style)}
+                          className={`text-btn-dev ${selectedFont === option.style ? 'active' : ''}`}
+                        >
+                          {option.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Weight options */}
+                  <div className="option-row">
+                    {/* <span>Weight</span> */}
+                    <div className="option-buttons">
+                      {weightOptions.map(option => (
+                        <button
+                          key={option.value}
+                          onClick={() => setSelectedWeight(option.value)}
+                          className={`text-btn-dev ${selectedWeight === option.value ? 'active' : ''}`}
+                        >
+                          {option.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <span>{calculateProgress().toFixed(0)}%</span>
+              </div>
+              
+              {/* Bottom-left cell: Display mode */}
+              <div className="dev-cell">
+                <div className="cell-title">Display Mode</div>
+                <div className="option-row">
+                  <div className="option-buttons">
+                    {displayModes.map(mode => (
+                      <button
+                        key={mode.value}
+                        onClick={() => setDisplayMode(mode.value)}
+                        className={`text-btn-dev ${displayMode === mode.value ? 'active' : ''}`}
+                      >
+                        {mode.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Bottom-right cell: Progress bar */}
+              <div className="dev-cell">
+                <div className="cell-title">Progress - {calculateProgress().toFixed(0)}%</div>
+                <div className="progress-container">
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill"
+                      style={{ width: `${calculateProgress()}%` }}
+                    ></div>
+                  </div>
+                  {/* <span>%</span> */}
+                  {/* <div className="progress-text"> */}
+                    {/* <span>0%</span> */}
+                    
+                    {/* <span>100%</span> */}
+                  {/* </div> */}
+                  {/* <div className="progress-text">
+                    <span>0%</span>
+                    <span>{calculateProgress().toFixed(0)}%</span>
+                    <span>100%</span>
+                  </div> */}
+                </div>
               </div>
             </div>
           </div>

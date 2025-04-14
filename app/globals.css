@@ -25,7 +25,19 @@
   font-family: Georgia, serif !important;
 }
 
+.font-roboto-mono {
+  font-family: "Roboto Mono", monospace !important;
+}
+
+.font-source-code-pro {
+  font-family: "Source Code Pro", monospace !important;
+}
+
 /* Font weights */
+.font-light{
+  font-weight: 200 !important;
+}
+
 .font-normal {
   font-weight: 400 !important;
 }
@@ -116,7 +128,7 @@ body {
 }
 
 .text-btn-dev {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
@@ -160,15 +172,15 @@ body {
 .theme-toggle-container {
   display: flex;
   gap: 1rem;
-  margin-top: 2rem;
+  /* margin-top: 2rem; */
 }
 
 .options-toggle-container {
   display: flex;
   gap: 1rem;
-  /* margin-top: 1rem; */
   justify-content: center;
   flex-wrap: wrap;
+  margin-bottom: 0.5rem;
 }
 
 .input-hint {
@@ -210,6 +222,7 @@ body {
 .color-preview {
   width: 1rem;
   height: 1rem;
+  /* margin-left: 3; */
   border: 1px solid currentColor;
   border-radius: 0.25rem;
   cursor: pointer;
@@ -233,14 +246,15 @@ body {
   margin-left: 0.5rem;
 }
 
-/* Fixed height container for dev section to prevent layout shifts */
+/* Dev section grid layout */
 .dev-section-container {
-  min-height: 10rem; /* Adjust based on your content */
+  min-height: 3rem;
   width: 100%;
+  max-width: 40rem;
 }
 
 .dev-section {
-  margin-top: 2rem;
+  margin-top: 1rem;
   border-top: 1px solid currentColor;
   padding-top: 1rem;
   opacity: 0;
@@ -251,24 +265,80 @@ body {
 
 .dev-section.visible {
   opacity: 1;
-  max-height: 30rem; /* Adjust based on your content */
+  max-height: 15rem;
+}
+
+.dev-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 1rem;
+  width: 100%;
+}
+
+.dev-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.cell-title {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  width: 100%;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.colors-sounds-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.sound-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.font-weight-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.option-buttons {
+  display: flex;
+  gap: 0.5rem;
 }
 
 /* Progress bar styles */
 .progress-container {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.5rem;
   width: 100%;
-  max-width: 24rem;
 }
 
 .progress-bar {
-  flex: 1;
+  width: 100%;
   height: 0.75rem;
   background-color: rgba(128, 128, 128, 0.2);
   border-radius: 1rem;
   overflow: hidden;
+  margin-top: 4px;
 }
 
 .progress-fill {
@@ -278,7 +348,13 @@ body {
   transition: width 0.3s ease;
 }
 
-/* Hide the color input's default UI and make it position over the preview */
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Hide the color input's default UI */
 input[type="color"] {
   position: absolute;
   opacity: 0;
@@ -292,7 +368,18 @@ input[type="color"] {
   font-family: inherit;
   font-weight: inherit;
   letter-spacing: inherit;
+}
+
+/* Fixed-width display to maintain consistent width between modes */
+.fixed-width-display {
   width: 100%;
+  text-align: center;
+  display: inline-block;
+}
+
+/* Special container for scroll mode to match non-scroll size */
+.scroll-container {
+  display: inline-block;
   text-align: center;
 }
 
@@ -300,12 +387,15 @@ input[type="color"] {
   display: inline-block;
   position: relative;
   height: 1em;
-  width: 0.6em; /* Fixed width for each digit to prevent layout shifts */
+  width: 0.6em; /* Fixed width for digits */
   overflow: hidden;
+  vertical-align: middle;
 }
 
 .digit-container.colon {
-  width: 0.3em; /* Smaller width for colons */
+  width: 0.5em; /* Width for colons */
+  text-align: center;
+  overflow: visible; /* Make colons fully visible */
 }
 
 .digit-prev {
