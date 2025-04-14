@@ -14,7 +14,7 @@
 
 /* Force true monospace */
 .font-mono {
-  font-family: "Source Code Pro", monospace !important;
+  font-family: "Courier New", monospace !important;
 }
 
 .font-sans {
@@ -23,6 +23,19 @@
 
 .font-serif {
   font-family: Georgia, serif !important;
+}
+
+/* Font weights */
+.font-normal {
+  font-weight: 400 !important;
+}
+
+.font-medium {
+  font-weight: 500 !important;
+}
+
+.font-bold {
+  font-weight: 700 !important;
 }
 
 body {
@@ -50,6 +63,8 @@ body {
   margin-top: min(20vh, 20rem);
   margin-bottom: min(2vw, 8rem);
   letter-spacing: -0.02em;
+  width: 100%;
+  text-align: center;
 }
 
 .countdown-controls {
@@ -67,6 +82,12 @@ body {
   background: transparent;
   border: none;
   color: inherit;
+}
+
+/* Fixed width buttons to prevent layout shifts */
+.text-btn.fixed-width {
+  min-width: 5rem;
+  text-align: center;
 }
 
 .text-btn:hover:not(:disabled)::after {
@@ -94,14 +115,64 @@ body {
   background-color: currentColor;
 }
 
+.text-btn-dev {
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  padding: 0.05rem 0.1rem;
+  background: transparent;
+  border: none;
+  color: inherit;
+}
+
+/* Fixed width buttons to prevent layout shifts */
+.text-btn-dev.fixed-width {
+  min-width: 1rem;
+  text-align: center;
+}
+
+.text-btn-dev:hover:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+}
+
+.text-btn-dev:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.text-btn-dev.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+}
+
 .theme-toggle-container {
   display: flex;
   gap: 1rem;
   margin-top: 2rem;
 }
 
+.options-toggle-container {
+  display: flex;
+  gap: 1rem;
+  /* margin-top: 1rem; */
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .input-hint {
-  font-size: max(1vw, 0.875rem);
+  font-size: 1rem;
   margin-bottom: 0.5rem;
 }
 
@@ -121,6 +192,15 @@ body {
   margin-bottom: 1rem;
 }
 
+/* Color pickers in a row */
+.colors-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  width: 100%;
+}
+
 .color-picker-container {
   display: flex;
   align-items: center;
@@ -128,8 +208,8 @@ body {
 }
 
 .color-preview {
-  width: 2rem;
-  height: 2rem;
+  width: 1rem;
+  height: 1rem;
   border: 1px solid currentColor;
   border-radius: 0.25rem;
   cursor: pointer;
@@ -142,27 +222,20 @@ body {
 
 .font-selector {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1rem;
+  width: 100%;
 }
 
-.font-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-select {
-  background-color: transparent;
-  border: 1px solid currentColor;
-  color: inherit;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
+.section-label {
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
 }
 
 /* Fixed height container for dev section to prevent layout shifts */
 .dev-section-container {
-  min-height: 12rem; /* Adjust based on your content */
+  min-height: 10rem; /* Adjust based on your content */
   width: 100%;
 }
 
@@ -210,4 +283,55 @@ input[type="color"] {
   position: absolute;
   opacity: 0;
   pointer-events: none;
+}
+
+/* Scrolling digit effects */
+.timer-display {
+  position: relative;
+  display: inline-block;
+  font-family: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  width: 100%;
+  text-align: center;
+}
+
+.digit-container {
+  display: inline-block;
+  position: relative;
+  height: 1em;
+  width: 0.6em; /* Fixed width for each digit to prevent layout shifts */
+  overflow: hidden;
+}
+
+.digit-container.colon {
+  width: 0.3em; /* Smaller width for colons */
+}
+
+.digit-prev {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  animation: slide-out 0.3s forwards;
+  width: 100%;
+  text-align: center;
+}
+
+.digit-current {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  animation: slide-in 0.3s forwards;
+  width: 100%;
+  text-align: center;
+}
+
+@keyframes slide-out {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slide-in {
+  from { transform: translateY(0); }
+  to { transform: translateY(-100%); }
 }
