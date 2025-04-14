@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-color: #000000;
+  --background-color: #ffffff;
+}
+
+[data-theme="dark"] {
+  --foreground-color: #ffffff;
+  --background-color: #000000;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.countdown-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.5s ease, color 0.5s ease;
+  background-color: var(--background-color);
+  color: var(--foreground-color);
+  outline: none;
+}
+
+.countdown-timer {
+  font-size: min(20vw, 22rem);
+  line-height: 1;
+  margin-bottom: min(2vw, 8rem);
+}
+
+.countdown-controls {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.text-btn {
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: none;
+  color: inherit;
+}
+
+.text-btn:hover:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+}
+
+.text-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.text-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+}
+
+.theme-toggle-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.input-hint {
+  font-size: max(1vw, 0.875rem);
+  margin-bottom: 0.5rem;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.color-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.color-preview {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid currentColor;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.color-preview:hover {
+  transform: scale(1.1);
+}
+
+.font-selector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.font-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+select {
+  background-color: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.dev-section {
+  margin-top: 2rem;
+  border-top: 1px solid currentColor;
+  padding-top: 1rem;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, height 0.3s ease;
+}
+
+.dev-section.visible {
+  opacity: 1;
+  height: auto;
+}
