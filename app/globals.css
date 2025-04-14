@@ -12,6 +12,19 @@
   --background-color: #000000;
 }
 
+/* Force true monospace */
+.font-mono {
+  font-family: "Source Code Pro", monospace !important;
+}
+
+.font-sans {
+  font-family: system-ui, sans-serif !important;
+}
+
+.font-serif {
+  font-family: Georgia, serif !important;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -34,7 +47,9 @@ body {
 .countdown-timer {
   font-size: min(20vw, 22rem);
   line-height: 1;
+  margin-top: min(20vh, 20rem);
   margin-bottom: min(2vw, 8rem);
+  letter-spacing: -0.02em;
 }
 
 .countdown-controls {
@@ -90,6 +105,14 @@ body {
   margin-bottom: 0.5rem;
 }
 
+/* Fixed height container to prevent layout shifts */
+.input-hint-container {
+  height: 1.75rem; /* Enough for one line of text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .control-group {
   display: flex;
   flex-direction: column;
@@ -137,17 +160,54 @@ select {
   border-radius: 0.25rem;
 }
 
+/* Fixed height container for dev section to prevent layout shifts */
+.dev-section-container {
+  min-height: 12rem; /* Adjust based on your content */
+  width: 100%;
+}
+
 .dev-section {
   margin-top: 2rem;
   border-top: 1px solid currentColor;
   padding-top: 1rem;
   opacity: 0;
-  height: 0;
+  max-height: 0;
   overflow: hidden;
-  transition: opacity 0.3s ease, height 0.3s ease;
+  transition: opacity 0.3s ease, max-height 0.3s ease;
 }
 
 .dev-section.visible {
   opacity: 1;
-  height: auto;
+  max-height: 30rem; /* Adjust based on your content */
+}
+
+/* Progress bar styles */
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 24rem;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 0.75rem;
+  background-color: rgba(128, 128, 128, 0.2);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: currentColor;
+  border-radius: 1rem;
+  transition: width 0.3s ease;
+}
+
+/* Hide the color input's default UI and make it position over the preview */
+input[type="color"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
